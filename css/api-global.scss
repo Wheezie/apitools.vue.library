@@ -1,0 +1,99 @@
+body {
+    margin:0;
+    padding:0;
+}
+a {
+    text-decoration: none;
+    color: #00a8ff;
+
+    &:hover {
+        color:#006ba0;
+    }
+
+    & + a {
+        margin-left:.4em;
+    }
+}
+
+.floating-parent {
+    display:flex;
+    align-items: center;
+
+    background-color: #ebeef2;
+    min-height:100vh;
+    width:100%;
+
+    .center-bar {
+        flex-grow:1;
+        margin:0 auto;
+
+        max-width:300px;
+        padding:1.2em;
+        margin: 0 auto;
+
+        background-color: #FFF;
+        border-radius:.3em;
+
+        -webkit-box-shadow: 0px 0px .6em .25em rgb(199, 199, 199);
+        -moz-box-shadow: 0px 0px .6em .25em rgb(199, 199, 199);
+        box-shadow: 0px 0px .6em .25em rgb(199, 199, 199);
+
+        
+    }
+}
+
+
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+.input-field {
+    position: relative;
+    margin: .6em 0;
+
+    i {
+        position: absolute;
+        padding: calc(.5em - 2px);
+        font-size: 1.3em;
+        left: 1px;
+        top: 1px;
+        z-index: 0;
+        border-radius: .2em 0 0 .2em;
+    }
+    
+    label {
+        display: none;
+    }
+    
+
+    input {
+        position: relative;
+        display: block;
+        padding: .8em;
+        border-radius: .25em;
+        z-index: 1;
+        outline: 0;
+
+
+        &[type=text], &[type=password], &[type=email] {
+            padding-left: 3.4em;
+            width: calc(100% - 4.2em); 
+            border: 1px solid #888;
+
+            background-color: rgba(0,0,0,0);
+
+            &:focus + i {
+                background-color:#ebeef2;
+            }
+        }
+
+        &[type=submit] {
+            width: 100%;
+            border:0;
+            background-color: #bebebe;
+
+            &:hover {
+                cursor: pointer;
+                background-color: #999999;
+            }
+        }
+    }
+}
