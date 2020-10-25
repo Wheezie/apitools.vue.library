@@ -1,3 +1,6 @@
+import IValidator from '../../forms/validation/IValidator';
+import RequiredValidator from '../../forms/validation/RequiredValidator';
+import StringValidator from '../../forms/validation/StringValidator';
 import IStringOptions from '../interfaces/IStringOptions';
 
 export default class StringOptions implements IStringOptions {
@@ -21,5 +24,17 @@ export default class StringOptions implements IStringOptions {
 
     get maximum(): number {
         return this._maximum;
+    }
+
+    get validators(): Array<IValidator> {
+        const validators: Array<IValidator> = [
+            new StringValidator(this._minimum, this._maximum)
+        ];
+
+        if (this._required) {
+            validators.push(new RequiredValidator());
+        }
+
+        return validators;
     }
 }
