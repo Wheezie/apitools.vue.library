@@ -27,7 +27,7 @@ a {
         flex-grow:1;
         margin:0 auto;
 
-        max-width:300px;
+        max-width:330px;
         padding:1.2em;
         margin: 0 auto;
 
@@ -44,56 +44,3 @@ a {
 
 
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
-
-.input-field {
-    position: relative;
-    margin: .6em 0;
-
-    i {
-        position: absolute;
-        padding: calc(.5em - 2px);
-        font-size: 1.3em;
-        left: 1px;
-        top: 1px;
-        z-index: 0;
-        border-radius: .2em 0 0 .2em;
-    }
-    
-    label {
-        display: none;
-    }
-    
-
-    input {
-        position: relative;
-        display: block;
-        padding: .8em;
-        border-radius: .25em;
-        z-index: 1;
-        outline: 0;
-
-
-        &[type=text], &[type=password], &[type=email] {
-            padding-left: 3.4em;
-            width: calc(100% - 4.2em); 
-            border: 1px solid #888;
-
-            background-color: rgba(0,0,0,0);
-
-            &:focus + i {
-                background-color:#ebeef2;
-            }
-        }
-
-        &[type=submit] {
-            width: 100%;
-            border:0;
-            background-color: #bebebe;
-
-            &:hover {
-                cursor: pointer;
-                background-color: #999999;
-            }
-        }
-    }
-}
