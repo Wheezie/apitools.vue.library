@@ -11,9 +11,6 @@
             <Submit-Button field="Login" :enabled="valid" />
             <router-link v-if="showRegister ?? true" :to="{name: 'apiRegister'}">Register</router-link>
             <router-link v-if="showForgot ?? true" :to="{name: 'apiForgotPassword'}">Forgot password</router-link>
-            <ul id="errors">
-                <li v-for="error in errors" :key="error">{{ error }}</li>
-            </ul>
         </form>
     </div>
 </template>
@@ -36,6 +33,8 @@ import SubmitButton from './forms/SubmitButton.vue';
 import RequiredValidator from '../forms/validation/RequiredValidator';
 import StringValidator from '../forms/validation/StringValidator';
 import ILoginObject from '../models/account/ILoginObject';
+import IValidationError from '../forms/validation/IValidationError';
+import ValidationError from '../forms/validation/ValidationError';
 
 export default defineComponent({
     components: {
@@ -53,12 +52,14 @@ export default defineComponent({
             username: {
                 value: '',
                 valid: false,
-                validators: [ new RequiredValidator() ]
+                validators: [ new RequiredValidator() ],
+                errors: new Array<IValidationError>()
             },
             password: {
                 value: '',
                 valid: false,
-                validators: [ new RequiredValidator() ]
+                validators: [ new RequiredValidator() ],
+                errors: new Array<IValidationError>()
             }
         });
 
@@ -71,7 +72,6 @@ export default defineComponent({
 
         return {
             inputs: inputs,
-            errors: Array<String>(),
             validators: {
                 required: [ new RequiredValidator() ]
             },
@@ -85,8 +85,9 @@ export default defineComponent({
                 .subscribe(status => {
                     switch (status) {
                         case AuthenticationStatus.Unauthenticated:
-                            this.errors.length = 0;
-                            this.errors.push("Incorrect username/password");
+                            this.inputs.password.value = '';
+                            this.inputs.password.errors.length = 0;
+                            this.inputs.password.errors.push(new ValidationError("Incorrect password"));
                             break;
                         case AuthenticationStatus.Authenticated:
                             this.$router.push(this.$props.success!);

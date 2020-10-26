@@ -22,9 +22,6 @@
             <Submit-Button field="Register" :enabled="valid" />
             <router-link v-if="showLogin" :to="{name: 'apiLogin'}">Login</router-link>
         </form>
-        <ul id="errors">
-            <li v-for="error in errors" :key="error">{{ error }}</li>
-        </ul>
     </div>
 </template>
 
@@ -45,7 +42,9 @@ import SubmitButton from './forms/SubmitButton.vue';
 import IField from '../forms/IField';
 
 import StringValidator from '../forms/validation/StringValidator';
+import StringCompareValidator from '../forms/validation/StringCompareValidator';
 import RequiredValidator from '../forms/validation/RequiredValidator';
+import IValidationError from '../forms/validation/IValidationError';
 
 export default defineComponent({
     components: {
@@ -58,40 +57,48 @@ export default defineComponent({
         showLogin: Boolean
     },
     data() {
-        
+        const password = ref('');
         const inputs: UnwrapRef<IRegistrationObject> = reactive({
             email: {
                 value: '',
                 valid: false,
                 validators: this.config!.emailRequired
-                    ? [ new RequiredValidator() ] : []
+                    ? [ new RequiredValidator() ] : [],
+                errors: new Array<IValidationError>()
             },
             username: {
                 value: '',
                 valid: false,
-                validators: this.config!.userName.validators
+                validators: this.config!.userName.validators,
+                errors: new Array<IValidationError>()
             },
             firstName: {
                 value: '',
                 valid: false,
-                validators: this.config!.firstName.validators
+                validators: this.config!.firstName.validators,
+                errors: new Array<IValidationError>()
             },
             lastName: {
                 value: '',
                 valid: false,
-                validators: this.config!.lastName.validators
+                validators: this.config!.lastName.validators,
+                errors: new Array<IValidationError>()
             },
             password: {
-                value: '',
+                value: password,
                 valid: false,
-                validators: this.config!.password.validators
+                validators: this.config!.password.validators,
+                errors: new Array<IValidationError>()
             },
             passwordRetype: {
                 value: '',
                 valid: false,
-                validators: this.config!.password.validators
+                validators: this.config!.password.validators,
+                errors: new Array<IValidationError>()
             }
         });
+
+        inputs.passwordRetype.validators.push(new StringCompareValidator(password, "Password"))
 
         const valid = ref(false);
 
@@ -102,8 +109,7 @@ export default defineComponent({
 
         return {
             inputs: inputs,
-            valid: valid,
-            errors: Array<String>()
+            valid: valid
         }
     },
     methods: {
