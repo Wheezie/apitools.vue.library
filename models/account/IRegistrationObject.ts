@@ -6,4 +6,5 @@ export default interface IRegistrationRequest extends ILoginObject {
     firstName: IField;
     lastName: IField;
     passwordRetype: IField;
+    token: IField;
 }
