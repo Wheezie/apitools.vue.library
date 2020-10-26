@@ -1,7 +1,11 @@
 <template>
     <div class="input-field">
         <label :for="fieldId">{{description ?? field}}</label>
-        <input :id="fieldId" ref="inputField" :type="type ?? 'text'" :value="modelValue" @input="validate()" @blur="validate()" v-bind:class="{error: hasErrors}" :placeholder="field" />
+        <input :id="fieldId" ref="inputField" :type="type ?? 'text'"
+            :value="modelValue.value" @input="validate()" @blur="validate()"
+            v-bind:class="{error: hasErrors}" :placeholder="field"
+            :min="minimum" :minlength="minimum"
+            :max="maximum" :maxlength="maximum" />
         <i class="material-icons">{{icon}}</i>
         <div class="errors" v-if="hasErrors">
             <span class="error" v-for="error in errors" :key="error">{{error.message}}</span>
@@ -196,42 +200,50 @@ import { defineComponent } from 'vue';
 
 import IValidator from '../../forms/validation/IValidator';
 import ValidationError from '../../forms/validation/ValidationError';
+import StringValidator from '../../forms/validation/StringValidator';
+
+import IField from '../../forms/IField';
 
 export default defineComponent({
     props: {
         field: String,
         description: String,
 
-        modelValue: String,
+        modelValue: Object as () => IField,
 
         type: String,
-        icon: String,
-        validators: {
-            type: Object as () => Array<IValidator>
-        }
+        icon: String
     },
     data(props) {
+        const stringValidator = this.modelValue!.validators!.find(c => c instanceof StringValidator) as StringValidator;
+
         return {
             fieldId: `${props.field!.charAt(0).toLowerCase()}${props.field!.substring(1).replace(' ', '')}Input`,
             hasErrors: false,
-            errors: new Array<ValidationError>()
+            errors: new Array<ValidationError>(),
+            validators: this.modelValue!.validators!,
+
+            minimum: stringValidator?.minimum ?? 0,
+            maximum: stringValidator?.maximum ?? Number.MAX_SAFE_INTEGER
         }
     },
     methods: {
         validate() {
-            const currentValue = (this.$refs.inputField as HTMLInputElement).value;
-            this.$emit('update:modelValue', currentValue);
+            const inputField = (this.$refs.inputField as HTMLInputElement);
+            const currentValue: IField = this.modelValue!;
+
             if (this.validators && this.validators.length > 0) {
-                this.errors = new Array<ValidationError>();
+                const totalErrors = new Array<ValidationError>();
 
-                this.validators.forEach(validator => {
-                    const errors = validator.validate(currentValue);
+                this.validators.forEach((validator) => totalErrors.push(...validator.validate(currentValue.value)));
 
-                    this.errors.push(...errors);
-                });
-
+                this.errors = totalErrors;
                 this.hasErrors = this.errors.length > 0;
             }
+
+            currentValue.value = inputField.value;
+            currentValue.valid = !this.hasErrors;
+            this.$emit('update:modelValue', currentValue);
         }
     }
 });
