@@ -1,5 +1,5 @@
 <template>
-    <input type="submit" :value="field" />
+    <input type="submit" :value="field" :disabled="!enabled" />
 </template>
 
 <style lang="scss" scoped>
@@ -13,9 +13,14 @@
 
         width: 100%;
         border:0;
+
         background-color: #7bc1ff;
 
-        &:hover {
+        &:disabled {
+            background-color: #769cbd; 
+        }
+
+        &:not(:disabled):hover {
             cursor: pointer;
             background-color: #2d89da;
         }
@@ -27,7 +32,8 @@ import { defineComponent } from 'vue';
 
 export default defineComponent({
     props: {
-        field: String
+        field: String,
+        enabled: Boolean
     }
 });
 </script>

@@ -8,13 +8,13 @@
                 v-model="inputs.password" description="Password"
                 icon="fingerprint" type="password"
                 :validators="validators.required" />
-            <Submit-Button field="Login" />
+            <Submit-Button field="Login" :enabled="valid" />
             <router-link v-if="showRegister ?? true" :to="{name: 'apiRegister'}">Register</router-link>
             <router-link v-if="showForgot ?? true" :to="{name: 'apiForgotPassword'}">Forgot password</router-link>
+            <ul id="errors">
+                <li v-for="error in errors" :key="error">{{ error }}</li>
+            </ul>
         </form>
-        <ul id="errors">
-            <li v-for="error in errors" :key="error">{{ error }}</li>
-        </ul>
     </div>
 </template>
 
@@ -25,7 +25,7 @@
 </style>
 
 <script lang="ts">
-import { defineComponent, onBeforeUnmount, onMounted } from 'vue';
+import { defineComponent, onBeforeUnmount, onMounted, reactive, ref, UnwrapRef, watch } from 'vue';
 import { RouteLocationRaw } from 'vue-router';
 
 import { AuthenticationStatus } from '../enums/AuthenticationStatus';
@@ -35,6 +35,7 @@ import InputField from './forms/InputField.vue';
 import SubmitButton from './forms/SubmitButton.vue';
 import RequiredValidator from '../forms/validation/RequiredValidator';
 import StringValidator from '../forms/validation/StringValidator';
+import ILoginObject from '../models/account/ILoginObject';
 
 export default defineComponent({
     components: {
@@ -48,21 +49,39 @@ export default defineComponent({
     },
 
     data(props) {
-        return {
-            inputs: {
-                username: '',
-                password: ''
+        const inputs: UnwrapRef<ILoginObject> = reactive({
+            username: {
+                value: '',
+                valid: false,
+                validators: [ new RequiredValidator() ]
             },
+            password: {
+                value: '',
+                valid: false,
+                validators: [ new RequiredValidator() ]
+            }
+        });
+
+        const valid = ref(false);
+
+        watch(inputs,
+            (value, _) =>
+                valid.value = (Object.values(value).find(c => !c.valid) == null)
+        )
+
+        return {
+            inputs: inputs,
             errors: Array<String>(),
             validators: {
                 required: [ new RequiredValidator() ]
-            }
+            },
+            valid: valid
         }
     },
 
     methods: {
         authenticate() {
-            ApiService.login(this.inputs.username, this.inputs.password)
+            ApiService.login(this.inputs.username.value, this.inputs.password.value)
                 .subscribe(status => {
                     switch (status) {
                         case AuthenticationStatus.Unauthenticated:
