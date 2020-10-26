@@ -1,8 +1,11 @@
+
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { reactive, UnwrapRef } from 'vue';
+
 import { AuthenticationStatus } from '../enums/AuthenticationStatus';
-import { TokenResponse } from '@/apitools/models/authentication/TokenResponse';
-import { AuthenticationRequest } from '@/apitools/models/authentication/AuthenticationRequest';
+import ITokenResponse from '../models/authentication/ITokenResponse';
+import IAuthenticationRequest from '../models/authentication/IAuthenticationRequest';
+import IAuthenticationInfo from '../models/authentication/IAuthenticationInfo';
 
 const STORAGE_API_TOKEN = "apitools_token";
 
@@ -13,43 +16,42 @@ class ApiService {
             "content-type": "application/json"
         }
     });
-    private _authentication: BehaviorSubject<AuthenticationStatus>;
-    private _authentication$: Observable<AuthenticationStatus>;
+    private _info: UnwrapRef<IAuthenticationInfo>;
 
     constructor() {
-        this._authentication = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.NotChecked);
-        this._authentication$ = this._authentication.asObservable();
+        this._info = reactive({ status: AuthenticationStatus.NotChecked });
     }
 
-    /* Authentication */
-    get authentication() {
-        return this._authentication$;
+    /* Information */
+    get info(): IAuthenticationInfo {
+        return this._info;
+    }
+
+    get authenticated() {
+        return (this.info.status == AuthenticationStatus.Authenticated);
     }
 
     login(username: string, password: string) {
-        const authRequest: AuthenticationRequest = {
+        const authRequest: IAuthenticationRequest = {
             username: username,
             password: password
         };
 
-        this.post<TokenResponse>('auth/login', authRequest)
+        this.post<ITokenResponse>('auth/login', authRequest)
             .then(response => {
                 if (response.status == 200) {
                     this.setAuthenticationToken(response.data.token);
                 }
             }, _ => this.clearAuthenticationToken());
-
-            
-        return this._authentication$;
     }
 
     logout() {
-        this.post<TokenResponse>('auth/signout', null)
+        this.post<ITokenResponse>('auth/signout', null)
             .then(_ => this.clearAuthenticationToken());
     }
 
     verify() {
-        this.get<TokenResponse>('auth/checkin')
+        this.get<ITokenResponse>('auth/checkin')
             .then(response => {
                 if (response.status == 200) {
                     this.setAuthenticationToken(response.data?.token);
@@ -99,12 +101,12 @@ class ApiService {
         if (token != null) {
             this._http.defaults.headers["authorization"] = token;
             localStorage.setItem(STORAGE_API_TOKEN, token);
-            this._authentication.next(AuthenticationStatus.Authenticated);
+            this._info.status = AuthenticationStatus.Authenticated;
         } else {
             const token = localStorage.getItem(STORAGE_API_TOKEN);
             if (token != null) {
                 this._http.defaults.headers["authorization"] = token;
-                this._authentication.next(AuthenticationStatus.Authenticated);
+                this._info.status = AuthenticationStatus.Authenticated;
             }
         }
     }
@@ -112,7 +114,7 @@ class ApiService {
     private clearAuthenticationToken() {
         localStorage.removeItem(STORAGE_API_TOKEN);
         delete this._http.defaults.headers["authorization"];
-        this._authentication.next(AuthenticationStatus.Unauthenticated);
+        this._info.status = AuthenticationStatus.Unauthenticated;
     }
 };
 
