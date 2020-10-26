@@ -2,13 +2,13 @@
     <div class="input-field">
         <label :for="fieldId">{{description ?? field}}</label>
         <input :id="fieldId" ref="inputField" :type="type ?? 'text'"
-            :value="modelValue.value" @input="validate()" @blur="validate()"
-            v-bind:class="{error: hasErrors}" :placeholder="field"
+            v-model="modelValue.value" @change="validate()" @input="validate()" @blur="validate()"
+            :class="{error: modelValue.errors.length > 0}" :placeholder="field"
             :min="minimum" :minlength="minimum"
             :max="maximum" :maxlength="maximum" />
         <i class="material-icons">{{icon}}</i>
-        <div class="errors" v-if="hasErrors">
-            <span class="error" v-for="error in errors" :key="error">{{error.message}}</span>
+        <div class="errors" v-if="modelValue.errors.length > 0">
+            <span class="error" v-for="error in modelValue.errors" :key="error">{{error.message}}</span>
         </div>
     </div>
 </template>
@@ -196,10 +196,10 @@
 </style>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { computed, defineComponent, reactive, ref, watch } from 'vue';
 
 import IValidator from '../../forms/validation/IValidator';
-import ValidationError from '../../forms/validation/ValidationError';
+import IValidationError from '../../forms/validation/IValidationError';
 import StringValidator from '../../forms/validation/StringValidator';
 
 import IField from '../../forms/IField';
@@ -217,10 +217,13 @@ export default defineComponent({
     data(props) {
         const stringValidator = this.modelValue!.validators!.find(c => c instanceof StringValidator) as StringValidator;
 
+        watch(this.modelValue!,
+            (value, _) => {
+                value.valid = value.errors.length <= 0;
+        });
+
         return {
             fieldId: `${props.field!.charAt(0).toLowerCase()}${props.field!.substring(1).replace(' ', '')}Input`,
-            hasErrors: false,
-            errors: new Array<ValidationError>(),
             validators: this.modelValue!.validators!,
 
             minimum: stringValidator?.minimum ?? 0,
@@ -229,21 +232,16 @@ export default defineComponent({
     },
     methods: {
         validate() {
-            const inputField = (this.$refs.inputField as HTMLInputElement);
             const currentValue: IField = this.modelValue!;
 
             if (this.validators && this.validators.length > 0) {
-                const totalErrors = new Array<ValidationError>();
+                const totalErrors = new Array<IValidationError>();
 
                 this.validators.forEach((validator) => totalErrors.push(...validator.validate(currentValue.value)));
 
-                this.errors = totalErrors;
-                this.hasErrors = this.errors.length > 0;
+                currentValue.errors = totalErrors;
+                this.$emit('update:modelValue', currentValue);
             }
-
-            currentValue.value = inputField.value;
-            currentValue.valid = !this.hasErrors;
-            this.$emit('update:modelValue', currentValue);
         }
     }
 });
