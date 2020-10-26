@@ -1,3 +1,4 @@
+import IValidationError from './IValidationError';
 import IValidator from './IValidator';
 import ValidationError from './ValidationError';
 
@@ -27,7 +28,7 @@ export default class StringValidator implements IValidator {
         return this._maximum;
     }
 
-    validate(input: string): Array<ValidationError> {
+    validate(input: string): IValidationError[] {
         if (this._trimSpaces) {
             input = input.trim();
         }
@@ -36,7 +37,7 @@ export default class StringValidator implements IValidator {
             return [];
         }
 
-        const errors = new Array<ValidationError>();
+        const errors = new Array<IValidationError>();
         if (input.length < this._minimum) {
             errors.push(new ValidationError(`Must be at least ${this._minimum} characters long.`));
         } else if (this._maximum && input.length > this._maximum) {

@@ -1,5 +1,5 @@
-import ValidationError from './ValidationError';
+import IValidationError from './IValidationError';
 
 export default interface IValidator {
-    validate(input: string | any): ValidationError[];
+    validate(input: string | any): IValidationError[];
 }
