@@ -5,5 +5,5 @@ export default interface IStringOptions {
     minimum: number;
     maximum: number;
 
-    validators(): Array<IValidator>;
+    validators: IValidator[];
 };

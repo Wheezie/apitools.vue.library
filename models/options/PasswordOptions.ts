@@ -23,8 +23,8 @@ export default class PasswordOptions extends StringOptions {
         return this._specialChar;
     }
 
-    get validators(): Array<IValidator> {
-        const validators: Array<IValidator> = [
+    get validators(): IValidator[] {
+        const validators: IValidator[] = [
             new StringValidator(this.minimum, this.maximum, this._specialChar, this._number)
         ];
 

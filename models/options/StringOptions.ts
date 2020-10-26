@@ -26,8 +26,8 @@ export default class StringOptions implements IStringOptions {
         return this._maximum;
     }
 
-    get validators(): Array<IValidator> {
-        const validators: Array<IValidator> = [
+    get validators(): IValidator[] {
+        const validators: IValidator[] = [
             new StringValidator(this._minimum, this._maximum)
         ];
 
