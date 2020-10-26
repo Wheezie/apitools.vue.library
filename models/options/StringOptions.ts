@@ -1,7 +1,7 @@
 import IValidator from '../../forms/validation/IValidator';
 import RequiredValidator from '../../forms/validation/RequiredValidator';
 import StringValidator from '../../forms/validation/StringValidator';
-import IStringOptions from '../interfaces/IStringOptions';
+import IStringOptions from './IStringOptions';
 
 export default class StringOptions implements IStringOptions {
     private _required: boolean;
