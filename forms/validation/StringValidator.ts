@@ -19,12 +19,20 @@ export default class StringValidator implements IValidator {
         this._trimSpaces = trimSpaces;
     }
 
+    get minimum() {
+        return this._minimum;
+    }
+
+    get maximum() {
+        return this._maximum;
+    }
+
     validate(input: string): Array<ValidationError> {
         if (this._trimSpaces) {
             input = input.trim();
         }
 
-        if (length == 0) {
+        if (input.length == 0) {
             return [];
         }
 
@@ -32,7 +40,7 @@ export default class StringValidator implements IValidator {
         if (input.length < this._minimum) {
             errors.push(new ValidationError(`Must be at least ${this._minimum} characters long.`));
         } else if (this._maximum && input.length > this._maximum) {
-            errors.push(new ValidationError(`May only be ${this._minimum} characters long.`));
+            errors.push(new ValidationError(`May only be ${this._maximum} characters long.`));
         }
 
         if (this._number && !NUMBER_REGEX.test(input)) {
