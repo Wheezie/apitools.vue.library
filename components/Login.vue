@@ -67,8 +67,21 @@ export default defineComponent({
 
         watch(inputs,
             (value, _) =>
-                valid.value = (Object.values(value).find(c => !c.valid) == null)
-        )
+                valid.value = (Object.values(value).find(c => !c.valid) == null))
+
+        watch(ApiService.info,
+            (value, _) => {
+                switch(value.status) {
+                    case AuthenticationStatus.Unauthenticated:
+                        inputs.password.value = '';
+                        inputs.password.errors.length = 0;
+                        inputs.password.errors.push(new ValidationError("Incorrect password"));
+                        break;
+                    case AuthenticationStatus.Authenticated:
+                        this.$router.push(this.$props.success!);
+                        break;
+                }
+            });
 
         return {
             inputs: inputs,
@@ -81,21 +94,7 @@ export default defineComponent({
 
     methods: {
         authenticate() {
-            ApiService.login(this.inputs.username.value, this.inputs.password.value)
-                .subscribe(status => {
-                    switch (status) {
-                        case AuthenticationStatus.Unauthenticated:
-                            this.inputs.password.value = '';
-                            this.inputs.password.errors.length = 0;
-                            this.inputs.password.errors.push(new ValidationError("Incorrect password"));
-                            break;
-                        case AuthenticationStatus.Authenticated:
-                            this.$router.push(this.$props.success!);
-                            break;
-                        default:
-                            return;
-                    }
-                });
+            ApiService.login(this.inputs.username.value, this.inputs.password.value);
         }
     }
 });

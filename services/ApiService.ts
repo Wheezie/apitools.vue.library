@@ -42,6 +42,7 @@ class ApiService {
                 if (response.status == 200) {
                     this.setAuthenticationToken(response.data.token);
                 }
+                console.log(this.info) 
             }, _ => this.clearAuthenticationToken());
     }
 

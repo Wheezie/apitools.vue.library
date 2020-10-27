@@ -1,17 +1,21 @@
 <template>
     <div id="register-holder">
         <form @submit.prevent="registrate">
+            <Input-Field field="Token"
+                icon="lock_open"
+                v-model="inputs.token"
+                v-if="tokenRequired" />
             <Input-Field field="Email"
                 type="email" icon="alternate_email"
                 v-model="inputs.email" />
             <Input-Field field="Username"
-                type="text" icon="person_outline"
+                icon="person_outline"
                 v-model="inputs.username" />
             <Input-Field field="First Name"
-                type="text" icon="text_fields"
+                icon="text_fields"
                 v-model="inputs.firstName" />
             <Input-Field field="Last Name"
-                type="text" icon="text_fields"
+                icon="text_fields"
                 v-model="inputs.lastName" />
             <Input-Field field="Password"
                 type="password" icon="fingerprint"
@@ -45,6 +49,7 @@ import StringValidator from '../forms/validation/StringValidator';
 import StringCompareValidator from '../forms/validation/StringCompareValidator';
 import RequiredValidator from '../forms/validation/RequiredValidator';
 import IValidationError from '../forms/validation/IValidationError';
+import { AxiosResponse } from 'axios';
 
 export default defineComponent({
     components: {
@@ -95,26 +100,48 @@ export default defineComponent({
                 valid: false,
                 validators: this.config!.password.validators,
                 errors: new Array<IValidationError>()
+            },
+            token: {
+                value: '',
+                valid: false,
+                validators: this.config!.token.validators,
+                errors: new Array<IValidationError>()
             }
         });
 
-        inputs.passwordRetype.validators.push(new StringCompareValidator(password, "Password"))
-
-        const valid = ref(false);
-
-        watch(inputs,
-            (value, _) =>
-                valid.value = (Object.values(value).find(c => !c.valid) == null)
-        )
+        inputs.token.valid = (inputs.token.validators.find(x => x instanceof RequiredValidator) == null);
+        inputs.passwordRetype.validators.push(new StringCompareValidator(password, "Password"));
 
         return {
-            inputs: inputs,
-            valid: valid
+            inputs: inputs
         }
     },
     methods: {
+        getRegisterUrl() {
+            return `account/register${this.inputs.token.value.length > 0 ? `/${this.inputs.token.value}` : ''}`;
+        },
         registrate() {
-            AccountService.register(this.inputs);
+            switch(ApiService.info.status) {
+                case AuthenticationStatus.NotChecked:
+                case AuthenticationStatus.Unauthenticated:           
+                    ApiService.post<AxiosResponse>(this.getRegisterUrl(), {
+                        email: this.inputs.email.value,
+                        username: this.inputs.username.value,
+                        password: this.inputs.password.value,
+
+                        firstName: this.inputs.firstName.value,
+                        lastName: this.inputs.lastName.value
+                    });
+                    break;
+            }
+        }
+    },
+    computed: {
+        tokenRequired(): boolean {
+            return this.inputs!.token.validators.find(x => x instanceof RequiredValidator) != null;
+        },
+        valid(): boolean {
+            return (Object.values(this.inputs).find(c => !c.valid) == null);
         }
     }
 });

@@ -8,7 +8,7 @@ export default class RegistrationOptions {
 
     public token: IStringOptions = new StringOptions(false, 6, 6);
 
-    public userName: IStringOptions = new StringOptions(true, 2, 32);
+    public userName: IStringOptions = new StringOptions(true, 4, 32);
     public firstName: IStringOptions = new StringOptions(true, 2, 32);
     public lastName: IStringOptions = new StringOptions(true, 2, 32);
 
