@@ -60,6 +60,8 @@
                            -moz-animation: background-icon .5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
                              -o-animation: background-icon .5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
                                 animation: background-icon .5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+
+                        color:#555;
                     }
                 }
 
@@ -72,6 +74,8 @@
                              -o-animation: background-icon-error .5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
                                 animation: background-icon-error .5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
                         
+
+                        color:#555;
                     }
                 }
             }

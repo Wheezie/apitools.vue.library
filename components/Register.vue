@@ -35,7 +35,6 @@ import { RouteLocationRaw } from 'vue-router';
 
 import { AuthenticationStatus } from '../enums/AuthenticationStatus';
 import ApiService from '../services/ApiService';
-import AccountService from '../services/AccountService';
 
 import RegistrationOptions from '../models/options/RegistrationOptions';
 import IRegistrationObject from '../models/account/IRegistrationObject';
